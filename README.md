@@ -1,31 +1,114 @@
 # Implement-multiple-patterns-on-LEDs-controlled-by-switches
-This Embedded C program is designed to control 8 LEDs using 4 switches from a digital keypad. Each switch is assigned a unique LED glowing pattern. The main objective of this program is to display different LED patterns based on the switch pressed.
-
-Pattern:
-
-Write a Embedded C program to display the multiple patterns on the LEDs controlled by the switches. For every switch, dedicate a LEDs glow pattern. The pattern should change on key press.
-
-Output Requirements:
-
-Upon giving the power supply, all 8 LEDs should be OFF.
-
-Now, press switch-1 on the Digital Keypad, LEDs should glow according to the pattern-1*
-
-Press switch-2, LEDs should glow according to the pattern-2*
-
-Press switch-3, LEDs should glow according to the pattern-3*
-
-Press switch-4, LEDs should glow according to the pattern-4*
-
-*pattern-1: The LEDs should glow from Left to Right and Right to left as explained in the assignment-1.
+This Embedded C program is designed to control 8 LEDs using 4 switches from a digital keypad. Each switch is assigned a unique LED glowing pattern. The main objective of this program is to display different LED patterns based on the switch pressed
+ * File:   newmain.c
+ * Author: HP
+ * Created on February 11, 2026, 3:45 PM
+ */
 
 
-*pattern-2: The LEDs should glow from left to Right and switch off from left to right, no direction control/ direction change.
+#include <xc.h>
+#include "dkp.h"
 
-*pattern-3: The LEDs should blink alternately.
+void init_config()
+{
+    init_digital_keypad();
+    TRISB=0;
+    PORTB=0;
+}
 
-*pattern-4: The LEDs has to blink nibble wise, i.e first 4 LEDs will be ON, next 4 LEDs will be OFF, after first 4 LEDs will be OFF, next 4 LEDs will be ON.
 
-Inputs:
 
-Digital Keypad
+void main(void) {
+    
+    init_config();
+    
+    
+    int unsigned i=0;
+    int unsigned delay = 0;
+    char prev=0x0f;
+    while(1)
+    {
+     
+        char key=read_digital_keypad(STATE_CHANGE);
+        
+        
+        if(key!= ALL_RELEASED)
+        {
+            prev=key;
+        }
+        
+        if(prev==SWITCH1)
+        {
+            if(delay++ == 5000)
+            {
+                delay = 0;
+                
+                                if(i<8)
+                                {
+                                 PORTB = PORTB | (0x01<<i);
+                                 }
+                                else if(i>=8 && i<16)
+                                {
+                                    PORTB=PORTB << 0x01;
+                                }
+                                else if(i>=16 && i<24 )
+                                {
+                                    PORTB=PORTB | (0x80>>(i-16));
+                                }
+                                else if(i>=24 && i<32)
+                                {
+                                    PORTB =PORTB>>0x01;
+//                                     for(int i=0;i<2500;i++);
+                                }
+                                else
+                                {
+                                    i=-1;
+                                }
+                                i++;
+            }
+        }
+            
+        
+        else if(prev==SWITCH2)
+        {
+            PORTB=0xF0;
+            for(unsigned int i=50000;i--;);
+            PORTB=0X0F;
+            for(unsigned int i=50000;i--;);
+        } 
+        
+        else if(prev==SWITCH3)
+        {
+            PORTB=0xAA;
+            for(unsigned int i=50000;i--;);
+            PORTB=0X55;
+            for(unsigned int i=50000;i--;);
+        }
+        else if(prev==SWITCH4)
+        {
+            if(delay++ == 5000)
+            {
+                delay=0;
+                       if(i<8)
+                       {
+                       PORTB = PORTB | (0x01 << i);
+                       }
+                       else if(i>=8 && i<16)
+                       {
+                        PORTB=PORTB << 0x01;
+                       }
+                       else
+                       {
+                           i=-1;
+                       }
+                i++;
+            }
+            
+        }
+        
+            
+    }
+            
+    return;
+}
+
